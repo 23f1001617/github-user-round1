@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub User Fetcher</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding: 20px;
+        }
+        #github-created-at {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .dark-mode {
+            background-color: #333;
+            color: white;
+        }
+        .light-mode {
+            background-color: white;
+            color: black;
+        }
+    </style>
+</head>
+<body class="light-mode">
+    <div class="container">
+        <h1>GitHub User Fetcher</h1>
+        <form id="github-user-42" onsubmit="fetchGitHubUser(event)">
+            <div class="form-group">
+                <label for="username">GitHub Username:</label>
+                <input type="text" class="form-control" id="username" required>
+            </div>
+            <div class="form-group">
+                <label for="token">Optional Token:</label>
+                <input type="text" class="form-control" id="token">
+            </div>
+            <button type="submit" class="btn btn-primary">Fetch User</button>
+        </form>
+        <div id="github-created-at"></div>
+        <button id="toggle-theme" class="btn btn-secondary" onclick="toggleTheme()">Toggle Theme</button>
+    </div>
+    <script>
+        async function fetchGitHubUser(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const token = document.getElementById('token').value;
+            const url = `https://api.github.com/users/${username}` + (token ? `?token=${token}` : '');
+            const createdAtElement = document.getElementById('github-created-at');
+            createdAtElement.textContent = ''; // Clear previous output
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error('Failed to load data.');
+                }
+                const data = await response.json();
+                const createdAt = new Date(data.created_at).toISOString().split('T')[0];
+                createdAtElement.textContent = `Account Creation Date: ${createdAt} UTC`;
+            } catch (error) {
+                createdAtElement.textContent = 'Failed to load data.';
+            }
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            body.classList.toggle('dark-mode');
+            body.classList.toggle('light-mode');
+        }
+    </script>
+    <!-- build-id: 2023-10-07T12:00:00Z -->
+</body>
+</html>
+<!-- build-id: 2025-10-16T12:58:23.183565 -->

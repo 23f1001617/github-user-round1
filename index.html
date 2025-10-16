@@ -4,26 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GitHub User Fetcher</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
             padding: 20px;
+            transition: background-color 0.3s;
+        }
+        .dark-mode {
+            background-color: #343a40;
+            color: white;
         }
         #github-created-at {
             margin-top: 20px;
-            font-weight: bold;
-        }
-        .dark-theme {
-            background-color: #333;
-            color: #fff;
-        }
-        .light-theme {
-            background-color: #fff;
-            color: #000;
         }
     </style>
 </head>
-<body class="light-theme">
+<body>
     <div class="container">
         <h1>GitHub User Fetcher</h1>
         <form id="github-user-42">
@@ -31,43 +27,34 @@
                 <label for="username">GitHub Username:</label>
                 <input type="text" class="form-control" id="username" required>
             </div>
-            <div class="form-group">
-                <label for="token">Optional Token:</label>
-                <input type="text" class="form-control" id="token">
-            </div>
             <button type="submit" class="btn btn-primary">Fetch User</button>
         </form>
         <div id="github-created-at"></div>
-        <button id="toggle-theme" class="btn btn-secondary mt-3">Toggle Theme</button>
+        <button id="toggle-theme" class="btn btn-secondary" style="margin-top: 20px;">Toggle Theme</button>
     </div>
 
     <script>
-        document.getElementById('github-user-42').addEventListener('submit', function(event) {
+        document.getElementById('github-user-42').addEventListener('submit', async function(event) {
             event.preventDefault();
             const username = document.getElementById('username').value;
-            const token = document.getElementById('token').value;
+            const token = new URLSearchParams(window.location.search).get('token');
             const url = `https://api.github.com/users/${username}${token ? `?access_token=${token}` : ''}`;
 
-            fetch(url)
-                .then(response => {
-                    if (!response.ok) throw new Error('Failed to load data.');
-                    return response.json();
-                })
-                .then(data => {
-                    const createdAt = new Date(data.created_at).toISOString().slice(0, 10);
-                    document.getElementById('github-created-at').innerText = `Account Created At: ${createdAt} UTC`;
-                })
-                .catch(error => {
-                    document.getElementById('github-created-at').innerText = error.message;
-                });
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.json();
+                document.getElementById('github-created-at').innerText = `Account Created At: ${new Date(data.created_at).toISOString().split('T')[0]} UTC`;
+            } catch (error) {
+                document.getElementById('github-created-at').innerText = 'Failed to load data.';
+            }
         });
 
         document.getElementById('toggle-theme').addEventListener('click', function() {
-            document.body.classList.toggle('dark-theme');
-            document.body.classList.toggle('light-theme');
+            document.body.classList.toggle('dark-mode');
         });
     </script>
     <!-- build-id: 2023-10-04T12:00:00Z -->
 </body>
 </html>
-<!-- build-id: 2025-10-16T13:09:45.715941 -->
+<!-- build-id: 2025-10-16T13:23:15.195014 -->
